@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>webcamFilter</title>
+    <link rel="stylesheet" href="style.css" />
+    <script src="webcam.js"></script>
+</head>
+<body>
+    <div class="supercont">
+        <div class = "container" id="videoDiv">
+            <video autoplay id="vid"></video>
+            <input type="image" src="img/btnshot.png" id="btn">
+            <label name = "blur" for="rangeB">Blur</label>
+            <input  id="rangeB" type="range" min="0" max="100" value="50">
+            <label name = "sepia" for="rangeS">Sepia</label>
+            <input  id="rangeS" type="range" min="0" max="100" value="100">
+            <label name = "grayscale" for="rangeG">Grayscale</label>
+            <input  id="rangeG" type="range" min="0" max="100" value="100">
+            <label name = "invert" for="rangeI">Invert</label>
+            <input  id="rangeI" type="range" min="0" max="100" value="100">
+            <canvas class = "prev" id="canvBlur" width="640" height="480"></canvas>
+            <canvas class = "prev" id="canvGray" width="640" height="480"></canvas>
+            <canvas class = "prev" id="canvSepia" width="640" height="480"></canvas>
+            <canvas class = "prev" id="canvInvert" width="640" height="480"></canvas>
+        </div>
+        <div class = "container" id="canvasDiv">
+            <canvas id="canv" width="640" height="480"></canvas>
+        </div>
+    </div>
+</body>
+</html>
