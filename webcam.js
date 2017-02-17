@@ -86,7 +86,13 @@ window.onload = ()=>{
                 context.filter = stringFilter(filter.name, filter.value);
             }
             else{
-               context.filter = video.style.filter;
+                if(video.style.filter.toString() == ""){
+                    context.filter = "none";
+                }else {
+                    context.filter = video.style.filter;
+                }
+               console.log("v"+video.style.filter.toString()+"v");
+               console.log(context.filter.toString());
             }
             context.drawImage(video, 0, 0);
         }
@@ -95,6 +101,8 @@ window.onload = ()=>{
     //Наложение или удаление фильтров на видео
     let videoFilter = (filter) => {
         let strFilter = stringFilter(filter.name, filter.value);
+
+        //Скрыть "бегунки" и подписи настроек фильтров
         let styleRange = document.querySelectorAll("input[type=range]");
         let styleLabelRange = document.querySelectorAll("label");
         for(let i = 0; i < styleRange.length; i++){
@@ -102,7 +110,8 @@ window.onload = ()=>{
           styleLabelRange[i].style.display = "none"
         }
 
-        console.log(strFilter);
+        //Если фильтр не наложен, то включаем его, отображаем его настройки и накладываем на изображение
+        //Иначе выключаем фильтр и снимаем его с изображения
         if(!filter.enable) {
             video.style.filter +=  strFilter;
             document.querySelector("label[name = "+filter.name+"]").style.display = "block";
@@ -115,16 +124,13 @@ window.onload = ()=>{
             video.style.filter = videoStyle;
         }
         filter.enable = !filter.enable;
-
-        console.log(video.style.filter.toString());
-        console.log(filter.name + " " + filter.enable);
     };
 
 
     navigator.getUserMedia =  navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozGetUserMedia || navigator.msGetUserMedia;
     navigator.getUserMedia({video: true}, initVideoStream, onCameraFail);
 
-    //Превью фильтров
+    //Отображаем превью фильтров
     cameraInterval = setInterval(() => {
         videoToCanvas(ctx.ctxBlur, filters.blur);
         videoToCanvas(ctx.ctxGray, filters.grayscale);
@@ -132,6 +138,7 @@ window.onload = ()=>{
         videoToCanvas(ctx.ctxInvert, filters.invert);
     }, 1 );
 
+    //Изменяем плотность фильтра при помощи бегунка
     let setValue = (filterName) => {
         let strFilter = stringFilter(filterName, filters[filterName].value);
         let videoStyle = video.style.filter.toString();
