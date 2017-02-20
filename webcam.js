@@ -134,12 +134,12 @@ window.onload = ()=>{
     let setFilter = (context, filter) => {
         let dataImg = context.getImageData(0, 0, context.canvas.width, context.canvas.height);
         if(filter){
-                dataImg = filter.func(dataImg, 100, filter[value].name);
+                dataImg = filter.func(dataImg, 100);
         }
         else{
             for(let value in filters){
                 if(filters[value].enable){
-                        dataImg = filters[value].func(dataImg, filters[value].value, filter[value].name);
+                        dataImg = filters[value].func(dataImg, filters[value].value);
                 }
             }
         }
