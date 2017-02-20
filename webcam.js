@@ -5,63 +5,78 @@
 
 let sepiaFilter = (imageData, range) =>{
     let pixelChannel = imageData.data;
+    let r, g, b, gray;
+    let rangef = range/100;
+    let antirangef = 1-rangef;
     for(let i = 0; i < pixelChannel.length; i += 4){
-        let r = pixelChannel[i];
-        let g = pixelChannel[i + 1];
-        let b = pixelChannel[i + 2];
-        pixelChannel[i] =  r*(100-range)/100 + ((r + g + b)/3 + 2*30)*(range/100);
-        pixelChannel[i + 1] =  g*(100-range)/100 + ((r + g + b)/3 + 30)*(range/100);
-        pixelChannel[i + 2] =  b*(100-range)/100 + ((r + g + b)/3)*(range/100);
+        r = pixelChannel[i];
+        g = pixelChannel[i + 1];
+        b = pixelChannel[i + 2];
+        gray = ((r + g + b)/3);
+        pixelChannel[i] =  r*antirangef + (gray + 60)*rangef;
+        pixelChannel[i + 1] =  g*antirangef + (gray + 30)*rangef;
+        pixelChannel[i + 2] =  b*antirangef + gray*rangef;
     }
     return imageData;
 };
 
 let grayscaleFilter = (imageData, range) =>{
     let pixelChannel = imageData.data;
+    let r, g, b, gray;
+    let rangef = range/100;
+    let antirangef = 1-rangef;
     for(let i = 0; i < pixelChannel.length; i += 4){
-        let r = pixelChannel[i];
-        let g = pixelChannel[i + 1];
-        let b = pixelChannel[i + 2];
-        pixelChannel[i] =  r*(100-range)/100 + ((r + g + b)/3)*(range/100);
-        pixelChannel[i + 1] =  g*(100-range)/100 + ((r + g + b)/3)*(range/100);
-        pixelChannel[i + 2] =  b*(100-range)/100 + ((r + g + b)/3)*(range/100);
+        r = pixelChannel[i];
+        g = pixelChannel[i + 1];
+        b = pixelChannel[i + 2];
+        gray = ((r + g + b)/3)*rangef;
+        pixelChannel[i] =  r*antirangef + gray;
+        pixelChannel[i + 1] =  g*antirangef + gray;
+        pixelChannel[i + 2] =  b*antirangef + gray;
     }
     return imageData;
 };
+
+
 
 let invertFilter = (imageData, range) =>{
+    let r, g, b;
     let pixelChannel = imageData.data;
+    let rangef = range/100;
+    let antirangef = 1-rangef;
     for(let i = 0; i < pixelChannel.length; i += 4){
-        pixelChannel[i] =  (255 - pixelChannel[i])*range/100 + pixelChannel[i]*(100-range)/100;
-        pixelChannel[i + 1] =  (255 - pixelChannel[i + 1])*range/100 + pixelChannel[i+1]*(100-range)/100;
-        pixelChannel[i + 2] =  (255 - pixelChannel[i + 2])*range/100 + pixelChannel[i+2]*(100-range)/100;
+        r = pixelChannel[i];
+        g = pixelChannel[i + 1];
+        b = pixelChannel[i + 2];
+        pixelChannel[i] =  (255 - r)*rangef + r*antirangef;
+        pixelChannel[i + 1] =  (255 - g)*rangef + g*antirangef;
+        pixelChannel[i + 2] =  (255 - b)*rangef + b*antirangef;
     }
     return imageData;
 };
 
 
-
-    //Набор фильтров и их параметров
+//Набор фильтров и их параметров
 let filters = {
-        grayscale: {
-            name: "grayscale",
-            value: 100,
-            enable: false,
-            func: grayscaleFilter
-        },
-        sepia: {
-            name: "sepia",
-            value: 100,
-            enable: false,
-            func: sepiaFilter
-        },
-        invert: {
-            name: "invert",
-            value: 100,
-            enable: false,
-            func: invertFilter
-        }
-    };
+    grayscale: {
+        name: "grayscale",
+        value: 100,
+        enable: false,
+        func: grayscaleFilter
+    },
+    sepia: {
+        name: "sepia",
+        value: 100,
+        enable: false,
+        func: sepiaFilter
+    },
+    invert: {
+        name: "invert",
+        value: 100,
+        enable: false,
+        func: invertFilter
+    }
+};
 
 window.onload = ()=>{
     let video = document.getElementById("vid"),
@@ -108,21 +123,23 @@ window.onload = ()=>{
 
     //Отрисока кадра видео на канвасе
     let videoToCanvas = (context, filter)=>{
+        let t1 = performance.now();
         if(localMediaStream){
             context.drawImage(video, 0, 0);
             setFilter(context, filter);
         }
+        console.log(t1 - performance.now());
     };
 
     let setFilter = (context, filter) => {
         let dataImg = context.getImageData(0, 0, context.canvas.width, context.canvas.height);
         if(filter){
-            dataImg = filter.func(dataImg, 100);
+                dataImg = filter.func(dataImg, 100, filter[value].name);
         }
         else{
             for(let value in filters){
                 if(filters[value].enable){
-                    dataImg = filters[value].func(dataImg, filters[value].value);
+                        dataImg = filters[value].func(dataImg, filters[value].value, filter[value].name);
                 }
             }
         }
@@ -152,11 +169,11 @@ window.onload = ()=>{
     let viewSetting = () => {
         let countEnableFilter = 0;
         if(filters.grayscale.enable){
-              countEnableFilter++;
-              range.grayscale.style.display = "block";
-              range.grayscale.style.marginTop = 60 - (5*countEnableFilter) + "%";
-              document.getElementsByName("grayscale")[0].style.display = "block";
-              document.getElementsByName("grayscale")[0].style.marginTop = 57 - (5*countEnableFilter) + "%";
+            countEnableFilter++;
+            range.grayscale.style.display = "block";
+            range.grayscale.style.marginTop = 60 - (5*countEnableFilter) + "%";
+            document.getElementsByName("grayscale")[0].style.display = "block";
+            document.getElementsByName("grayscale")[0].style.marginTop = 57 - (5*countEnableFilter) + "%";
         }
         else {
             range.grayscale.style.display = "none";
